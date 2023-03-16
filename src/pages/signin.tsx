@@ -5,6 +5,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { useState } from 'react';
@@ -91,12 +92,12 @@ export default function SignIn() {
             </h2>
             <p className='mt-2 text-center text-sm text-gray-600'>
               Or{' '}
-              <a
+              <Link
                 href='/signup'
                 className='font-medium text-indigo-600 hover:text-indigo-500'
               >
                 sign up for a new account
-              </a>
+              </Link>
             </p>
           </div>
           <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
