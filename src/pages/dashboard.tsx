@@ -2,21 +2,12 @@
 import clsx from 'clsx';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import * as React from 'react';
-import {
-  HiArrowRight,
-  HiOutlineCreditCard,
-  HiOutlineDesktopComputer,
-  HiOutlineDeviceMobile,
-  HiOutlineShieldCheck,
-  HiPlus,
-} from 'react-icons/hi';
 
 import { app } from '@/lib/firebase';
 
 import Button from '@/components/buttons/Button';
-import IconButton from '@/components/buttons/IconButton';
-import TextButton from '@/components/buttons/TextButton';
 import Layout from '@/components/layout/Layout';
 import ArrowLink from '@/components/links/ArrowLink';
 import ButtonLink from '@/components/links/ButtonLink';
@@ -31,14 +22,16 @@ type Color = (typeof colorList)[number];
 
 export default function ComponentsPage() {
   const router = useRouter();
+  const [color, setColor] = useState<Color>('sky');
+  const [routeHome, setRouteHome] = useState(false);
+  useEffect(() => {
+    // Update the document title using the browser API
+    if (routeHome) {
+      router.push('/');
+    }
+  });
 
-  const [mode, setMode] = React.useState<'dark' | 'light'>('light');
-  const [color, setColor] = React.useState<Color>('sky');
-  function toggleMode() {
-    return mode === 'dark' ? setMode('light') : setMode('dark');
-  }
-
-  const textColor = mode === 'dark' ? 'text-gray-300' : 'text-gray-600';
+  const textColor = 'text-gray-600';
   const auth = getAuth(app);
 
   onAuthStateChanged(auth, (user) => {
@@ -48,7 +41,7 @@ export default function ComponentsPage() {
     } else {
       // User is signed out
       // ...
-      router.push('/');
+      setRouteHome(true);
     }
   });
 
@@ -63,15 +56,8 @@ export default function ComponentsPage() {
       />
 
       <main>
-        <section
-          className={clsx(mode === 'dark' ? 'bg-dark' : 'bg-white', color)}
-        >
-          <div
-            className={clsx(
-              'layout min-h-screen py-20',
-              mode === 'dark' ? 'text-white' : 'text-black'
-            )}
-          >
+        <section className={clsx('bg-white', color)}>
+          <div className={clsx('layout min-h-screen py-20', 'text-black')}>
             <h1>Dashboard</h1>
             <ArrowLink direction='left' className='mt-2' href='/'>
               Back to Home
@@ -79,10 +65,12 @@ export default function ComponentsPage() {
 
             <div className='mt-8 flex flex-wrap gap-2'>
               <Button
-                onClick={toggleMode}
-                variant={mode === 'dark' ? 'light' : 'dark'}
+                onClick={() => {
+                  console.log('click');
+                }}
+                variant='dark'
               >
-                Set to {mode === 'dark' ? 'light' : 'dark'}
+                Set to dark
               </Button>
               {/* <Button onClick={randomize}>Randomize CSS Variable</Button> */}
             </div>
@@ -101,9 +89,8 @@ export default function ComponentsPage() {
                     value={color}
                     className={clsx(
                       'block max-w-xs rounded',
-                      mode === 'dark'
-                        ? 'border border-gray-600 bg-dark'
-                        : 'border-gray-300 bg-white',
+
+                      'border-gray-300 bg-white',
                       'focus:border-primary-400 focus:outline-none focus:ring focus:ring-primary-400'
                     )}
                     onChange={(e) => setColor(e.target.value as Color)}
@@ -218,242 +205,7 @@ export default function ComponentsPage() {
                   </ArrowLink>
                 </div>
               </li>
-              <li className='space-y-2'>
-                <h2 className='text-lg md:text-xl'>ButtonLink</h2>
-                <p className={clsx('!mt-1 text-sm', textColor)}>
-                  Button styled link with 3 variants.
-                </p>
-                <div className='flex flex-wrap gap-2'>
-                  <ButtonLink
-                    variant='primary'
-                    href='https://theodorusclarence.com'
-                  >
-                    Primary Variant
-                  </ButtonLink>
-                  <ButtonLink
-                    variant='outline'
-                    isDarkBg={mode === 'dark'}
-                    href='https://theodorusclarence.com'
-                  >
-                    Outline Variant
-                  </ButtonLink>
-                  <ButtonLink
-                    variant='ghost'
-                    isDarkBg={mode === 'dark'}
-                    href='https://theodorusclarence.com'
-                  >
-                    Ghost Variant
-                  </ButtonLink>
-                  <ButtonLink
-                    variant='dark'
-                    href='https://theodorusclarence.com'
-                  >
-                    Dark Variant
-                  </ButtonLink>
-                  <ButtonLink
-                    variant='light'
-                    href='https://theodorusclarence.com'
-                  >
-                    Light Variant
-                  </ButtonLink>
-                </div>
-              </li>
-              <li className='space-y-2'>
-                <h2 className='text-lg md:text-xl'>Button</h2>
-                <p className={clsx('!mt-1 text-sm', textColor)}>
-                  Ordinary button with style.
-                </p>
-                <div className='flex flex-wrap gap-2'>
-                  <Button variant='primary'>Primary Variant</Button>
-                  <Button variant='outline' isDarkBg={mode === 'dark'}>
-                    Outline Variant
-                  </Button>
-                  <Button variant='ghost' isDarkBg={mode === 'dark'}>
-                    Ghost Variant
-                  </Button>
-                  <Button variant='dark'>Dark Variant</Button>
-                  <Button variant='light'>Light Variant</Button>
-                </div>
-                <div className='flex flex-wrap gap-2'>
-                  <Button
-                    variant='primary'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                  >
-                    Icon
-                  </Button>
-                  <Button
-                    variant='outline'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                    isDarkBg={mode === 'dark'}
-                  >
-                    Icon
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                    isDarkBg={mode === 'dark'}
-                  >
-                    Icon
-                  </Button>
-                  <Button
-                    variant='dark'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                  >
-                    Icon
-                  </Button>
-                  <Button
-                    variant='light'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                  >
-                    Icon
-                  </Button>
-                </div>
-                <div className='!mt-4 flex flex-wrap gap-2'>
-                  <Button size='sm' variant='primary'>
-                    Small Size
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    isDarkBg={mode === 'dark'}
-                  >
-                    Small Size
-                  </Button>
-                  <Button size='sm' variant='ghost' isDarkBg={mode === 'dark'}>
-                    Small Size
-                  </Button>
-                  <Button size='sm' variant='dark'>
-                    Small Size
-                  </Button>
-                  <Button size='sm' variant='light'>
-                    Small Size
-                  </Button>
-                </div>
-                <div className='flex flex-wrap gap-2'>
-                  <Button
-                    size='sm'
-                    variant='primary'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                  >
-                    Icon
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                    isDarkBg={mode === 'dark'}
-                  >
-                    Icon
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='ghost'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                    isDarkBg={mode === 'dark'}
-                  >
-                    Icon
-                  </Button>
 
-                  <Button
-                    size='sm'
-                    variant='dark'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                  >
-                    Icon
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='light'
-                    leftIcon={HiPlus}
-                    rightIcon={HiArrowRight}
-                  >
-                    Icon
-                  </Button>
-                </div>
-
-                <div className='!mt-4 flex flex-wrap gap-2'>
-                  <Button disabled variant='primary'>
-                    Disabled
-                  </Button>
-                  <Button disabled variant='outline' isDarkBg={mode === 'dark'}>
-                    Disabled
-                  </Button>
-                  <Button disabled variant='ghost' isDarkBg={mode === 'dark'}>
-                    Disabled
-                  </Button>
-                  <Button disabled variant='dark'>
-                    Disabled
-                  </Button>
-                  <Button disabled variant='light'>
-                    Disabled
-                  </Button>
-                </div>
-                <div className='flex flex-wrap gap-2'>
-                  <Button isLoading variant='primary'>
-                    Disabled
-                  </Button>
-                  <Button
-                    isLoading
-                    variant='outline'
-                    isDarkBg={mode === 'dark'}
-                  >
-                    Disabled
-                  </Button>
-                  <Button isLoading variant='ghost' isDarkBg={mode === 'dark'}>
-                    Disabled
-                  </Button>
-                  <Button isLoading variant='dark'>
-                    Disabled
-                  </Button>
-                  <Button isLoading variant='light'>
-                    Disabled
-                  </Button>
-                </div>
-              </li>
-              <li className='space-y-2'>
-                <h2 className='text-lg md:text-xl'>TextButton</h2>
-                <p className={clsx('!mt-1 text-sm', textColor)}>
-                  Button with a text style
-                </p>
-                <div className='space-x-2'>
-                  <TextButton>Primary Variant</TextButton>
-                  <TextButton variant='basic'>Basic Variant</TextButton>
-                </div>
-              </li>
-              <li className='space-y-2'>
-                <h2 className='text-lg md:text-xl'>IconButton</h2>
-                <p className={clsx('!mt-1 text-sm', textColor)}>
-                  Button with only icon inside
-                </p>
-                <div className='space-x-2'>
-                  <IconButton icon={HiPlus} />
-                  <IconButton
-                    variant='outline'
-                    icon={HiOutlineDesktopComputer}
-                  />
-                  <IconButton variant='ghost' icon={HiOutlineDeviceMobile} />
-                  <IconButton variant='dark' icon={HiOutlineShieldCheck} />
-                  <IconButton variant='light' icon={HiOutlineCreditCard} />
-                </div>
-              </li>
-              <li className='space-y-2'>
-                <h2 className='text-lg md:text-xl'>Custom 404 Page</h2>
-                <p className={clsx('!mt-1 text-sm', textColor)}>
-                  Styled 404 page with some animation.
-                </p>
-                <div className='flex flex-wrap gap-2'>
-                  <ButtonLink href='/404'>Visit the 404 page</ButtonLink>
-                </div>
-              </li>
               <li className='space-y-2'>
                 <h2 className='text-lg md:text-xl'>Next Image</h2>
                 <p className={clsx('!mt-1 text-sm', textColor)}>
