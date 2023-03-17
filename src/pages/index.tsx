@@ -1,4 +1,8 @@
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
+
+import { app } from '@/lib/firebase';
 
 import Layout from '@/components/layout/Layout';
 import ArrowLink from '@/components/links/ArrowLink';
@@ -15,14 +19,16 @@ import Seo from '@/components/Seo';
  * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
  */
 import Vercel from '~/svg/Vercel.svg';
-
 // !STARTERCONF -> Select !STARTERCONF and CMD + SHIFT + F
 // Before you begin editing, follow all comments with `STARTERCONF`,
 // to customize the default configuration.
 
 export default function HomePage() {
+  const auth = getAuth(app);
+  const [userSignedIn, setUserSignedIn] = useState(false);
+  useEffect(() => onAuthStateChanged(auth, (user) => setUserSignedIn(!!user)));
   return (
-    <Layout>
+    <Layout login={!userSignedIn} logout={userSignedIn}>
       {/* <Seo templateTitle='Home' /> */}
       <Seo />
 
@@ -30,17 +36,13 @@ export default function HomePage() {
         <section className='bg-white'>
           <div className='layout relative flex min-h-screen flex-col items-center justify-center py-12 text-center'>
             <Vercel className='text-5xl' />
-            <h1 className='mt-4'>
-             Tryaway Homepage
-            </h1>
+            <h1 className='mt-4'>Tryaway Homepage</h1>
             <p className='mt-2 text-sm text-gray-800'>
               A starter for Next.js, Tailwind CSS, and TypeScript with Absolute
               Import, Seo, Link component, pre-configured with Husky{' '}
             </p>
             <p className='mt-2 text-sm text-gray-700'>
-              <ArrowLink href='/signin'>
-                Sign In
-              </ArrowLink>
+              <ArrowLink href='/signin'>Sign In</ArrowLink>
             </p>
 
             <ButtonLink className='mt-6' href='/signup' variant='light'>

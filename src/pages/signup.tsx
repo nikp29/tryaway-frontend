@@ -1,10 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // !STARTERCONF You can delete this page
-import { LockClosedIcon } from '@heroicons/react/20/solid';
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  onAuthStateChanged,
-} from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import * as React from 'react';
@@ -12,30 +8,31 @@ import { useState } from 'react';
 
 import { app } from '@/lib/firebase';
 
+import Layout from '@/components/layout/Layout';
+import Seo from '@/components/Seo';
+
 export default function SignUp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [submit, setSubmit] = useState(false);
+  const [error, setError] = useState('');
+  const [isPassProblem, setIsPassProblem] = useState(false);
+  const [isEmailProblem, setIsEmailProblem] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
   const auth = getAuth(app);
 
-  onAuthStateChanged(auth, (user) => {
-    if (user && !submit) {
-      router.push('/dashboard');
-      // ...
-    } else {
-      // User is signed out
-      // ...
-    }
-  });
-
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    setSubmit(true);
-
+    setIsPassProblem(false);
+    setIsEmailProblem(false);
+    if (password.length < 8) {
+      setIsPassProblem(true);
+      setError('Password must be at least 8 characters');
+      return;
+    }
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setIsPassProblem(true);
+      setError('Passwords do not match');
       return;
     }
 
@@ -57,63 +54,50 @@ export default function SignUp() {
         pathname: '/paywithstripe',
         query: { subscriptionId, clientSecret },
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error && error.message) {
+        if (error.message.includes('email-already-in-use')) {
+          setError('Email already in use');
+          setIsEmailProblem(true);
+        } else {
+          setError('Unkown error, please try again');
+        }
+      }
     }
   };
   return (
-    <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-50">
-        <body class="h-full">
-        ```
-      */}
-      <div className='flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
-        <div className='w-full max-w-md space-y-8'>
-          <div>
-            {/* <img
-              className="mx-auto h-12 w-auto"
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-              alt="Your Company"
-            /> */}
-            <h2 className='mt-6 text-center text-3xl font-bold tracking-tight text-gray-900'>
-              Sign up for a new account
-            </h2>
-            <p className='mt-2 text-center text-sm text-gray-600'>
-              Or{' '}
+    <main className=" flex min-h-screen flex-col bg-[url('/images/Tryawaybackground.png')] bg-cover">
+      <Layout>
+        <section className='flex flex-grow flex-col items-center justify-center'>
+          <div className='container flex max-w-md flex-col space-y-4 rounded-md bg-white p-6 shadow-xl'>
+            <p className='text-2xl font-bold text-gray-800'> Sign Up</p>
+            <div>
               <Link
-                href='/signup'
-                className='font-medium text-indigo-600 hover:text-indigo-500'
+                href='/signin'
+                className='text-sm font-medium text-indigo-700 hover:text-indigo-500'
               >
-                sign in
+                I have an account
               </Link>
-            </p>
-          </div>
-          <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
-            <div className='space-y-3 rounded-md shadow-sm'>
-              <div>
-                <label htmlFor='email-address' className='sr-only'>
-                  Email address
-                </label>
+            </div>
+
+            <form className='flex flex-col space-y-4' onSubmit={handleSubmit}>
+              {/* <input type='hidden' name='remember' defaultValue='true' /> */}
+              <div className=' flex flex-col'>
                 <input
                   id='email-address'
                   name='email'
                   type='email'
-                  autoComplete='email'
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className='relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                  className={
+                    'relative mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6' +
+                    (error && isEmailProblem
+                      ? ' z-10 ring-2 ring-inset ring-red-600 focus:ring-red-600'
+                      : ' focus:ring-indigo-600')
+                  }
                   placeholder='Email address'
                 />
-              </div>
-              <div>
-                <label htmlFor='password' className='sr-only'>
-                  Password
-                </label>
                 <input
                   id='password'
                   name='password'
@@ -122,61 +106,52 @@ export default function SignUp() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className='relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                  className={
+                    'relative mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6' +
+                    (error && isPassProblem
+                      ? ' z-10 ring-2 ring-inset ring-red-600 focus:ring-red-600'
+                      : ' focus:ring-indigo-600')
+                  }
                   placeholder='Password'
                 />
-              </div>
-              <div>
-                <label htmlFor='password' className='sr-only'>
-                  Confirm Password
-                </label>
                 <input
-                  id='confirm-password'
-                  name='confirm-password'
+                  id='password'
+                  name='password'
                   type='password'
+                  autoComplete='new-password'
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  autoComplete='new-password'
                   required
-                  className='relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                  className={
+                    'relative mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6' +
+                    (error && isPassProblem
+                      ? ' z-10 ring-2 ring-inset ring-red-600 focus:ring-red-600'
+                      : ' focus:ring-indigo-600')
+                  }
                   placeholder='Confirm Password'
                 />
+                {error ? (
+                  <p className='mt-1 text-xs text-red-700'>{error}</p>
+                ) : (
+                  <p className='mt-1 text-xs text-gray-500'>
+                    Use 8 characters or more
+                  </p>
+                )}
               </div>
-            </div>
 
-            <div className='flex justify-end'>
-              <div className='text-sm'>
-                <a
-                  href='#'
-                  className='font-medium text-indigo-600 hover:text-indigo-500'
+              <div>
+                <button
+                  type='submit'
+                  className='group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
                 >
-                  Forgot your password?
-                </a>
+                  Sign in
+                </button>
               </div>
-            </div>
-            <div className='flex justify-center'>
-              <div className='text-sm'>
-                By creating an account, you agree to the terms and conditions
-              </div>
-            </div>
-
-            <div>
-              <button
-                type='submit'
-                className='group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-              >
-                <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
-                  <LockClosedIcon
-                    className='h-5 w-5 text-indigo-500 group-hover:text-indigo-400'
-                    aria-hidden='true'
-                  />
-                </span>
-                Sign up
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </>
+            </form>
+          </div>
+        </section>
+        <Seo />
+      </Layout>
+    </main>
   );
 }

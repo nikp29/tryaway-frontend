@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        primary: ['Inter', ...fontFamily.sans],
+        primary: ['Helvetica Neue', ...fontFamily.sans],
       },
       colors: {
         primary: {
@@ -24,6 +24,9 @@ module.exports = {
           900: 'rgb(var(--tw-color-primary-900) / <alpha-value>)',
         },
         dark: '#222222',
+      },
+      backgroundImage: {
+        multigradient: "url('/images/Tryawaybackground.png')",
       },
       keyframes: {
         flicker: {
