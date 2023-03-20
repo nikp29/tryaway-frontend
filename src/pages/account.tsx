@@ -60,7 +60,6 @@ export default function ComponentsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage('');
-    console.log('submitting');
     if (!name || !streetAddress || !city || !state || !zip) {
       setMessage('Please fill out all fields');
       setIsSubmitting(false);
@@ -72,9 +71,7 @@ export default function ComponentsPage() {
     // to find your CardElement because there can only ever be one of
     // each type of element.
     const cardElement = elements?.getElement(CardElement);
-    console.log('cardElement', stripe, elements, clientSecret, cardElement);
     if (stripe && elements && typeof clientSecret === 'string' && cardElement) {
-      console.log('stripe and elements');
       // Use card Element to tokenize payment details
       try {
         await callBackEnd('setAddress', 'POST', idToken, {
