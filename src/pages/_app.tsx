@@ -2,10 +2,6 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { AppProps } from 'next/app';
 
-import { stripePublicKey } from '@/lib/stripe';
-
-const stripePromise = loadStripe(stripePublicKey);
-
 import '@/styles/globals.css';
 // !STARTERCONF This is for demo purposes, remove @/styles/colors.css import immediately
 import '@/styles/colors.css';
@@ -18,6 +14,9 @@ import '@/styles/colors.css';
  */
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const stripePromise = loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
+  );
   return (
     <Elements stripe={stripePromise}>
       <Component {...pageProps} />

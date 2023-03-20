@@ -15,7 +15,6 @@
 # production
 /build
 
-firebase.ts
 github.ts
 
 # misc

@@ -32,9 +32,6 @@ export default function ComponentsPage() {
     }
   });
 
-  const user = auth.currentUser;
-  console.log(user?.email);
-
   return (
     <main className=" flex min-h-screen flex-col bg-[url('/images/Tryawaybackground.png')] bg-cover">
       <Layout logout={true}>

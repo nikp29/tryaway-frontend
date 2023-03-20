@@ -47,14 +47,17 @@ export async function callBackEnd(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body?: any
 ) {
-  const res = await fetch('http://localhost:4242/v1/' + route, {
-    method,
-    headers: {
-      Authorization: 'Bearer ' + idToken,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
+  const res = await fetch(
+    process.env.NEXT_PUBLIC_BACKEND_URL + '/v1/' + route,
+    {
+      method,
+      headers: {
+        Authorization: 'Bearer ' + idToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    }
+  );
   const json = await res.json();
   return json;
 }

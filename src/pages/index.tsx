@@ -71,7 +71,7 @@ export default function HomePage() {
             <footer className='absolute bottom-2 text-gray-700'>
               © {new Date().getFullYear()} By{' '}
               <UnderlineLink href='https://theodorusclarence.com?ref=tsnextstarter'>
-                Theodorus Clarence
+                Nikhil Patel and Adil Khadri
               </UnderlineLink>
             </footer>
           </div>
