@@ -39,3 +39,22 @@ export function getFromSessionStorage(key: string): string | null {
   }
   return null;
 }
+
+export async function callBackEnd(
+  route: string,
+  method: string,
+  idToken: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body?: any
+) {
+  const res = await fetch('http://localhost:4242/v1/' + route, {
+    method,
+    headers: {
+      Authorization: 'Bearer ' + idToken,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json();
+  return json;
+}

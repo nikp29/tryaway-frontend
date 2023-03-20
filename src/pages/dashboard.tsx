@@ -24,7 +24,6 @@ export default function ComponentsPage() {
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log(user);
       // ...
     } else {
       // User is signed out

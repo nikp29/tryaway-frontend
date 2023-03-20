@@ -26,9 +26,15 @@ import Vercel from '~/svg/Vercel.svg';
 export default function HomePage() {
   const auth = getAuth(app);
   const [userSignedIn, setUserSignedIn] = useState(false);
-  useEffect(() => onAuthStateChanged(auth, (user) => setUserSignedIn(!!user)));
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() =>
+    onAuthStateChanged(auth, (user) => {
+      setUserSignedIn(!!user);
+      setLoaded(true);
+    })
+  );
   return (
-    <Layout login={!userSignedIn} logout={userSignedIn}>
+    <Layout login={!userSignedIn} logout={userSignedIn} loading={!loaded}>
       {/* <Seo templateTitle='Home' /> */}
       <Seo />
 

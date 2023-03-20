@@ -7,8 +7,10 @@ import * as React from 'react';
 import { useState } from 'react';
 
 import { app } from '@/lib/firebase';
+import { callBackEnd } from '@/lib/helper';
 
 import Layout from '@/components/layout/Layout';
+import NextImage from '@/components/NextImage';
 import Seo from '@/components/Seo';
 
 export default function SignUp() {
@@ -18,11 +20,13 @@ export default function SignUp() {
   const [isPassProblem, setIsPassProblem] = useState(false);
   const [isEmailProblem, setIsEmailProblem] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const auth = getAuth(app);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     setIsPassProblem(false);
     setIsEmailProblem(false);
     if (password.length < 8) {
@@ -33,6 +37,7 @@ export default function SignUp() {
     if (password !== confirmPassword) {
       setIsPassProblem(true);
       setError('Passwords do not match');
+      setIsSubmitting(false);
       return;
     }
 
@@ -43,13 +48,12 @@ export default function SignUp() {
         password
       );
       const jwt = await userCredential.user.getIdToken();
-      const res = await fetch('http://localhost:4242/v1/signup', {
-        method: 'POST',
-        headers: {
-          Authorization: 'Bearer ' + jwt,
-        },
-      });
-      const { subscriptionId, clientSecret } = await res.json();
+
+      const { subscriptionId, clientSecret } = await callBackEnd(
+        'signup',
+        'POST',
+        jwt
+      );
       router.push({
         pathname: '/paywithstripe',
         query: { subscriptionId, clientSecret },
@@ -64,10 +68,11 @@ export default function SignUp() {
         }
       }
     }
+    setIsSubmitting(false);
   };
   return (
     <main className=" flex min-h-screen flex-col bg-[url('/images/Tryawaybackground.png')] bg-cover">
-      <Layout>
+      <Layout loading={!(router && auth)}>
         <section className='flex flex-grow flex-col items-center justify-center'>
           <div className='container flex max-w-md flex-col space-y-4 rounded-md bg-white p-6 shadow-xl'>
             <p className='text-2xl font-bold text-gray-800'> Sign Up</p>
@@ -142,9 +147,23 @@ export default function SignUp() {
               <div>
                 <button
                   type='submit'
-                  className='group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+                  className='flex w-full flex-row items-center justify-center space-x-4 rounded-md bg-indigo-600 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-indigo-900'
+                  disabled={isSubmitting}
                 >
-                  Sign in
+                  {isSubmitting ? (
+                    <>
+                      <NextImage
+                        className='w-10'
+                        src='svg/loadingWhite.svg'
+                        width='256'
+                        height='128'
+                        alt='Icon'
+                      />{' '}
+                      <p>{'  '}</p>
+                    </>
+                  ) : (
+                    <p className='py-2'>Sign In</p>
+                  )}
                 </button>
               </div>
             </form>

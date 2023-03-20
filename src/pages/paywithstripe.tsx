@@ -7,8 +7,10 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 
 import { app } from '@/lib/firebase';
+import { callBackEnd } from '@/lib/helper';
 
 import Layout from '@/components/layout/Layout';
+import NextImage from '@/components/NextImage';
 import Seo from '@/components/Seo';
 
 export default function ComponentsPage() {
@@ -63,23 +65,18 @@ export default function ComponentsPage() {
     // to find your CardElement because there can only ever be one of
     // each type of element.
     const cardElement = elements?.getElement(CardElement);
+
     if (stripe && elements && typeof clientSecret === 'string' && cardElement) {
       // Use card Element to tokenize payment details
       try {
-        fetch('http://localhost:4242/v1/setAddress', {
-          method: 'POST',
-          headers: {
-            Authorization: 'Bearer ' + idToken,
+        await callBackEnd('setAddress', 'POST', idToken, {
+          address: {
+            name,
+            streetAddress,
+            city,
+            state,
+            zip,
           },
-          body: JSON.stringify({
-            address: {
-              name,
-              streetAddress,
-              city,
-              state,
-              zip,
-            },
-          }),
         });
         const paymentIntent = await stripe.confirmCardPayment(clientSecret, {
           payment_method: {
@@ -94,6 +91,7 @@ export default function ComponentsPage() {
           setPaymentStatus(paymentIntent.paymentIntent.status);
         } else {
           setMessage(paymentIntent.error.message as string);
+          setIsSubmitting(false);
         }
       } catch (error) {
         console.log(error);
@@ -113,7 +111,11 @@ export default function ComponentsPage() {
 
   return (
     <main className=" flex min-h-screen flex-col bg-[url('/images/Tryawaybackground.png')] bg-cover">
-      <Layout>
+      <Layout
+        loading={
+          !(stripe && elements && typeof clientSecret === 'string' && idToken)
+        }
+      >
         <Seo
           templateTitle='Components'
           description='Pre-built components with awesome default'
@@ -238,12 +240,23 @@ export default function ComponentsPage() {
 
                 <button
                   type='submit'
-                  className={
-                    'group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600' +
-                    (isSubmitting || !stripe || !elements ? 'isLoading' : '')
-                  }
+                  className='flex w-full flex-row items-center justify-center space-x-4 rounded-md bg-indigo-600 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-indigo-900'
+                  disabled={isSubmitting}
                 >
-                  Subscribe
+                  {isSubmitting ? (
+                    <>
+                      <NextImage
+                        className='w-10'
+                        src='svg/loadingWhite.svg'
+                        width='256'
+                        height='128'
+                        alt='Icon'
+                      />{' '}
+                      <p>{'  '}</p>
+                    </>
+                  ) : (
+                    <p className='py-2'>Subscribe</p>
+                  )}
                 </button>
               </form>
             </div>
