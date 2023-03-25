@@ -92,6 +92,7 @@ export default function ComponentsPage() {
           },
         });
         if (result.error) {
+          console.log(result.error);
           // Display result.error.message in your UI.
           setMessage(result.error.message as string);
         } else {

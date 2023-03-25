@@ -58,6 +58,13 @@ export async function callBackEnd(
       body: JSON.stringify(body),
     }
   );
+  if (!res.ok) {
+    // create error object and reject if not a 2xx response code
+    const err = new Error('HTTP status code: ' + res.status);
+    err.message = res.statusText;
+    err.name = res.status.toString();
+    throw err;
+  }
   const json = await res.json();
   return json;
 }
